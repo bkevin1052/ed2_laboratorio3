@@ -2,11 +2,20 @@ var Pizza = require('../models/pizza');
 var HttpStatus = require('http-status-codes');
 var tryparse = require('tryparse');
 var status = require('statuses')
+var jwt = require('jsonwebtoken')
+ 
 
 //Simple version, without validation or sanitation
 exports.test = function (req, res) {
     res.send('Greetings from the Test controller!');
 };
+
+exports.createJWT= function (req, res) {
+    
+       token = jwt.sign(req.body, "holahola");
+       res.send(token);
+};
+
 
 exports.pizza_create = function (req, res) {
     var pizza = new Pizza(); 
@@ -73,11 +82,27 @@ exports.pizza_create = function (req, res) {
 };
 
 exports.pizza_details = function (req, res) {
+    
+    Pizza.find(function(err,pizzas){
+        if(err) res.status(404).send(err.message);
+    
+    if(pizzas.length!=0)
+    {
     Pizza.findById(req.params.id, function (err, pizza) {
         
-        if (err) res.status(404).send(err.message);
+        if (err) {res.status(404).send(err.message); return;};
+        if(pizza == null)
+        {res.status(404).send('El id no existe'); return;}
         res.status(200).send(pizza);
-    });
+        return;
+    })
+}
+else
+{
+    res.status(404).send('La lista está vacía.');
+    return;
+}
+}); 
 };
 
 exports.pizza_update = function (req, res) { 
@@ -137,16 +162,52 @@ exports.pizza_update = function (req, res) {
         res.status(422).send('Por favor, indique si quiere queso extra')
         return;
     }
-
-    Pizza.findByIdAndUpdate(req.params.id, {$set: req.body}, function (err, pizza) {
-        if (err) {res.status(404).send(err.message);}
+    Pizza.find(function(err,pizzas){
+        if(err) res.status(404).send(err.message);
+    
+    if(pizzas.length!=0)
+    {
+    Pizza.findByIdAndUpdate(req.params.id, {$set: req.body}, function (err, pizzares) {
+        if (err) {res.status(404).send(err.message); return;}
+        if(pizzares == null) {res.status(404).send('El id no existe'); return;}
         res.status(200).send('Pizza Actualizada');
     });
+}
+else
+{
+    res.status(404).send('La lista está vacía.');
+    return;
+}
+}); 
 };
 
 exports.pizza_delete = function (req, res) {
-    Pizza.findByIdAndRemove(req.params.id, function (err) {
+    Pizza.find(function(err,pizzas){
+        if(err) {res.status(404).send(err.message); return;};
+    
+    if(pizzas.length!=0)
+    {
+    Pizza.findByIdAndRemove(req.params.id, function (err,pizza) {
         if (err) res.status(404).send(err.message);
+        if(pizza == null)
+        {res.status(404).send('El id no existe'); return;}
         res.status(200).send('Pizza Eliminada Exitosamente!');
+        return;
     })
+    
+}
+else
+{
+    res.status(404).send('La lista está vacía.');
+    return;
+}
+});
+};
+
+exports.allpizzas = function(req,res){
+    Pizza.find(function(err,pizzas){
+        if(err) res.status(404).send(err.message);
+        res.send(pizzas);
+        
+    });
 };
