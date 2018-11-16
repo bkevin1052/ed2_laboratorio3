@@ -23,5 +23,8 @@ router.put('/:id/update', pizza_controller.pizza_update);
 //DELETE
 router.delete('/:id/delete', pizza_controller.pizza_delete);
 
+//TEST
+router.get('/JSON/JWT/create', pizza_controller.createJWT);
+
 
 module.exports = router;

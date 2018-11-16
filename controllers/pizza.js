@@ -2,11 +2,20 @@ var Pizza = require('../models/pizza');
 var HttpStatus = require('http-status-codes');
 var tryparse = require('tryparse');
 var status = require('statuses')
+var jwt = require('jsonwebtoken')
+ 
 
 //Simple version, without validation or sanitation
 exports.test = function (req, res) {
     res.send('Greetings from the Test controller!');
 };
+
+exports.createJWT= function (req, res) {
+    
+       token = jwt.sign(req.body, "holahola");
+       res.send(token);
+};
+
 
 exports.pizza_create = function (req, res) {
     var pizza = new Pizza(); 
